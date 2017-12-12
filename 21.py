@@ -297,10 +297,10 @@ while True:
         print('No more players remaining.  Thank you for playing TwentyOne.')
         sys.exit()
 
-"""To Do List
-
+"""
+To Do List
 * Create a class for game/engine
 * Make some text-based graphics
 * Implement insurance on dealer's 21
-
+* Comment in a more pythonic style
 """
