@@ -1,12 +1,9 @@
-"""To Do List
-
-* Implement splitting hands
-* Error Handling and try statements
-* Properly comment all code
-* Move player list and hand list to Table object
-* Create a class for game/engine
-* Create better graphics
-* Implement insurance on dealer's 21
+"""
+21.py
+Title: TwentyOne
+Created By: Matthew Devaney
+Description: a simple text-based blackjack game
+Why I Made This: to practice object oriented programming
 """
 
 import random
@@ -32,6 +29,7 @@ class Deck(object):
 
 class Hand(object):
     def __init__(self, player_object):
+        # create a new hand object
         self.bet = 0
         self.cards = []
         self.player = player_object
@@ -39,15 +37,15 @@ class Hand(object):
         self.score = 0
 
     def double_bet(self):
-
         # double the hand's bet if they have enough dollars available
-        if 0 <= int(self.bet * 2) <= self.player.dollars:
+        if 0 <= int(self.bet) <= self.player.dollars:
             self.player.dollars -= self.bet
             self.bet = self.bet * 2
             return True
         return False
 
     def place_bet(self, bet, table):
+        # check if the player's bet is within available dollars and table limits then make the bet
         if (0 <= bet <= self.player.dollars) and table.legal_bet(bet):
             self.bet = bet
             self.player.dollars -= bet
@@ -73,8 +71,8 @@ class Hand(object):
                 hand_value += int(card[0])
 
         # if the hand is over 21 and has one or more aces reduce the value of aces until score is 21 or less
-        if hand_value > 21 and 'A' in self.cards:
-            for n in range(self.cards.count('A')):
+        if hand_value > 21 and ['A' == x for (x, y) in self.cards].count(True) >= 1:
+            for n in range(['A' == x for (x, y) in self.cards].count(True)):
                 hand_value -= 10
                 if hand_value <= 21:
                     break
@@ -87,26 +85,25 @@ class Hand(object):
 
 class Player(object):
     def __init__(self, name, dollars):
+        # create a new player object
         self.name = name
         self.dollars = dollars
 
 
 class Table(object):
-    def __init__(self, min_bet, max_bet):
-        self.min_bet = min_bet
-        self.max_bet = max_bet
+    def __init__(self, minimum_bet, maximum_bet):
+        # create a new table object
+        self.min_bet = minimum_bet
+        self.max_bet = maximum_bet
         self.soft_17 = False
 
     def legal_bet(self, bet):
-
         # check if the player's bet is within table limits
         if self.min_bet <= bet <= self.max_bet:
             return True
         else:
             return False
 
-
-# game is definitely a class
 
 # game variables
 min_bet = 10
@@ -148,7 +145,7 @@ while True:
     elif action == 'n':
         break
     else:
-        print('Invalid input.  Please choose \'Y\' or \'N\'')
+        print('Invalid input.  Please choose \'Y\' or \'N\'\n')
 
 while True:
 
@@ -207,12 +204,12 @@ while True:
 
         if hands_list[hand_position].score == 21:
             hand_position += 1
+            print()
         else:
             # ask the user what action they would like to take
             action = str.lower(input('\n{}\'s Turn : What would you like to do? (H)it, (S)tand, (D)ouble, S(p)lit? '
                                      .format(hands_list[hand_position].player.name)))
             print()
-
             # take action based on player response
             if action == 'h':
                 d.draw(hands_list[hand_position])
@@ -227,9 +224,20 @@ while True:
                     d.draw(hands_list[hand_position])
                     hand_position += 1
                 else:
-                    print('\n{} does not enough dollars to double hand\n'.format(hands_list[hand_position].player.name))
+                    print('{} does not enough dollars to double hand\n'.format(hands_list[hand_position].player.name))
+            elif action == 'p':
+                if hands_list[hand_position].cards[0][0] == hands_list[hand_position].cards[1][0] \
+                   and len(hands_list[hand_position].cards) == 2 \
+                   and hands_list[hand_position].player.dollars >= hands_list[hand_position].bet:
+                    h = Hand(hands_list[hand_position].player)
+                    hands_list.insert(hand_position + 1, h)
+                    hands_list[hand_position + 1].bet = hands_list[hand_position].bet
+                    hands_list[hand_position + 1].player.dollars -= hands_list[hand_position].bet
+                    hands_list[hand_position + 1].cards.insert(hand_position, hands_list[hand_position].cards.pop(1))
+                    d.draw(hands_list[hand_position])
+                    d.draw(hands_list[hand_position + 1])
             else:
-                print('\n' + 'Invalid input. Please choose \'H\', \'S\',\'D\' or \'P\'.\n')
+                print('Invalid input. Please choose \'H\', \'S\',\'D\' or \'P\'.\n')
 
         if hand_position >= len(hands_list) or hands_list[hand_position].score == 0:
             break
@@ -247,9 +255,8 @@ while True:
         if hands_list[0].score == 0:
             break
 
+    # determine the result of each hand and change dollars for the player
     for hand_position in range(1, len(hands_list)):
-        # determine the result of each hand and change dollars for the player
-
         if hands_list[hand_position].score > hands_list[0].score and hands_list[hand_position].score == 21 \
                 and (hands_list[hand_position]) == 2:
             hands_list[hand_position].player.dollars += hands_list[hand_position].bet * 1.5
@@ -263,6 +270,7 @@ while True:
             hands_list[hand_position].player.dollars += hands_list[hand_position].bet
             hands_list[hand_position].result = 'TIE'
 
+    # display the match result
     print('Result:')
     print('{}\'s Hand: {}  Score={}'
           .format(hands_list[0].player.name, hands_list[0].cards, hands_list[0].score))
@@ -281,10 +289,18 @@ while True:
         elif players_list[player_position].dollars == 0 or players_list[player_position].dollars < t.min_bet:
             print('{} does not have enough dollars to continue. Thank you for playing TwentyOne\n'
                   .format(players_list[player_position].name))
-            players_list.remove(player_position)
+            del players_list[player_position]
         player_position += 1
 
     # end game if no more players are remaining
     if len(players_list) == 1:
         print('No more players remaining.  Thank you for playing TwentyOne.')
         sys.exit()
+
+"""To Do List
+
+* Create a class for game/engine
+* Make some text-based graphics
+* Implement insurance on dealer's 21
+
+"""
