@@ -38,7 +38,7 @@ class Hand(object):
 
     def double_bet(self):
         # double the hand's bet if they have enough dollars available
-        if 0 <= int(self.bet) <= self.player.dollars:
+        if 0 <= self.bet <= self.player.dollars:
             self.player.dollars -= self.bet
             self.bet = self.bet * 2
             return True
